@@ -1,9 +1,11 @@
-// MongoDB Operations
+// database-operations.js
+
+const { ObjectId } = require('mongodb');
 const { connectToDatabase } = require('./mongodb-config');
 
 class DatabaseOperations {
-  
-  // Race Operations
+
+  // 🏁 Race Operations
   async createRace(raceData) {
     try {
       const { db } = await connectToDatabase();
@@ -14,7 +16,7 @@ class DatabaseOperations {
       });
       return result;
     } catch (error) {
-      console.error('Error creating race:', error);
+      console.error('❌ Error creating race:', error);
       throw error;
     }
   }
@@ -22,10 +24,9 @@ class DatabaseOperations {
   async getRaces(filter = {}) {
     try {
       const { db } = await connectToDatabase();
-      const races = await db.collection('races').find(filter).toArray();
-      return races;
+      return await db.collection('races').find(filter).toArray();
     } catch (error) {
-      console.error('Error fetching races:', error);
+      console.error('❌ Error fetching races:', error);
       throw error;
     }
   }
@@ -34,17 +35,17 @@ class DatabaseOperations {
     try {
       const { db } = await connectToDatabase();
       const result = await db.collection('races').updateOne(
-        { _id: raceId },
+        { _id: new ObjectId(raceId) },
         { $set: { ...updateData, updatedAt: new Date() } }
       );
       return result;
     } catch (error) {
-      console.error('Error updating race:', error);
+      console.error('❌ Error updating race:', error);
       throw error;
     }
   }
 
-  // Driver Operations
+  // 👨‍✈️ Driver Operations
   async createDriver(driverData) {
     try {
       const { db } = await connectToDatabase();
@@ -55,7 +56,7 @@ class DatabaseOperations {
       });
       return result;
     } catch (error) {
-      console.error('Error creating driver:', error);
+      console.error('❌ Error creating driver:', error);
       throw error;
     }
   }
@@ -63,15 +64,14 @@ class DatabaseOperations {
   async getDrivers(filter = {}) {
     try {
       const { db } = await connectToDatabase();
-      const drivers = await db.collection('drivers').find(filter).toArray();
-      return drivers;
+      return await db.collection('drivers').find(filter).toArray();
     } catch (error) {
-      console.error('Error fetching drivers:', error);
+      console.error('❌ Error fetching drivers:', error);
       throw error;
     }
   }
 
-  // Lap Time Operations
+  // ⏱️ Lap Time Operations
   async recordLapTime(lapData) {
     try {
       const { db } = await connectToDatabase();
@@ -81,7 +81,7 @@ class DatabaseOperations {
       });
       return result;
     } catch (error) {
-      console.error('Error recording lap time:', error);
+      console.error('❌ Error recording lap time:', error);
       throw error;
     }
   }
@@ -89,18 +89,17 @@ class DatabaseOperations {
   async getLapTimes(raceId) {
     try {
       const { db } = await connectToDatabase();
-      const lapTimes = await db.collection('lap_times')
+      return await db.collection('lap_times')
         .find({ raceId })
         .sort({ lapNumber: 1 })
         .toArray();
-      return lapTimes;
     } catch (error) {
-      console.error('Error fetching lap times:', error);
+      console.error('❌ Error fetching lap times:', error);
       throw error;
     }
   }
 
-  // Analytics Operations
+  // 📊 Analytics Operations
   async getDriverStats(driverId) {
     try {
       const { db } = await connectToDatabase();
@@ -114,11 +113,22 @@ class DatabaseOperations {
             averageLapTime: { $avg: '$lapTime' },
             totalRaces: { $addToSet: '$raceId' }
           }
+        },
+        {
+          $project: {
+            _id: 0,
+            driverId: '$_id',
+            totalLaps: 1,
+            bestLapTime: 1,
+            averageLapTime: 1,
+            raceCount: { $size: '$totalRaces' }
+          }
         }
       ]).toArray();
+
       return stats[0] || null;
     } catch (error) {
-      console.error('Error fetching driver stats:', error);
+      console.error('❌ Error fetching driver stats:', error);
       throw error;
     }
   }
