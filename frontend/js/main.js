@@ -1,3 +1,26 @@
+javascript
+// Request location permission
+function requestLocationPermission() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("Location permission granted!");
+        const { latitude, longitude } = position.coords;
+        console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+        // Store or use the location data
+      },
+      (error) => {
+        console.error("Location permission denied:", error.message);
+      }
+    );
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+  }
+}
+
+// Call this function when appropriate (e.g., on page load or button click)
+document.addEventListener('DOMContentLoaded', requestLocationPermission);
+
 document.addEventListener('DOMContentLoaded', function() {
     const startButton = document.getElementById('startButton');
     const loadingElement = document.getElementById('loading');
