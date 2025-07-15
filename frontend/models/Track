@@ -1,0 +1,183 @@
+// Track Model
+class Track {
+  constructor(data) {
+    this.id = data._id || data.id;
+    this.name = data.name;
+    this.location = data.location;
+    this.length = data.length; // in meters
+    this.turns = data.turns;
+    this.difficulty = data.difficulty || 'medium';
+    this.lapRecord = data.lapRecord || null;
+    this.createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
+    this.updatedAt = data.updatedAt ? new Date(data.updatedAt) : new Date();
+    
+    // Additional track properties
+    this.surface = data.surface || 'asphalt';
+    this.elevation = data.elevation || 0; // elevation change in meters
+    this.weather = data.weather || 'variable';
+    this.facilities = data.facilities || [];
+  }
+
+  // Validation methods
+  isValid() {
+    return this.name && 
+           this.location && 
+           this.length > 0 && 
+           this.turns >= 0;
+  }
+
+  // Length methods
+  getLengthInKm() {
+    return (this.length / 1000).toFixed(2);
+  }
+
+  getLengthInMiles() {
+    return (this.length * 0.000621371).toFixed(2);
+  }
+
+  // Difficulty methods
+  getDifficultyLevel() {
+    const levels = {
+      'easy': 1,
+      'medium': 2,
+      'hard': 3,
+      'expert': 4
+    };
+    return levels[this.difficulty] || 2;
+  }
+
+  isChallengingTrack() {
+    return ['hard', 'expert'].includes(this.difficulty);
+  }
+
+  // Lap record methods
+  hasLapRecord() {
+    return this.lapRecord && this.lapRecord.time;
+  }
+
+  getLapRecordFormatted() {
+    if (!this.hasLapRecord()) return 'No record set';
+    return this.formatLapTime(this.lapRecord.time);
+  }
+
+  updateLapRecord(time, driverId, date = new Date()) {
+    if (!this.lapRecord || time < this.lapRecord.time) {
+      this.lapRecord = {
+        time,
+        driverId,
+        date
+      };
+      this.updatedAt = new Date();
+      return true; // New record set
+    }
+    return false; // No new record
+  }
+
+  formatLapTime(timeInMs) {
+    const minutes = Math.floor(timeInMs / 60000);
+    const seconds = Math.floor((timeInMs % 60000) / 1000);
+    const milliseconds = timeInMs % 1000;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+  }
+
+  // Track characteristics
+  getAverageLapTime() {
+    // Estimate based on length and difficulty
+    const baseTime = this.length * 0.1; // Base calculation
+    const difficultyMultiplier = {
+      'easy': 0.9,
+      'medium': 1.0,
+      'hard': 1.15,
+      'expert': 1.3
+    };
+    return Math.round(baseTime * (difficultyMultiplier[this.difficulty] || 1.0));
+  }
+
+  getTurnDensity() {
+    return (this.turns / (this.length / 1000)).toFixed(2); // turns per km
+  }
+
+  // Facilities methods
+  addFacility(facility) {
+    if (!this.facilities.includes(facility)) {
+      this.facilities.push(facility);
+      this.updatedAt = new Date();
+    }
+  }
+
+  removeFacility(facility) {
+    const index = this.facilities.indexOf(facility);
+    if (index > -1) {
+      this.facilities.splice(index, 1);
+      this.updatedAt = new Date();
+    }
+  }
+
+  hasFacility(facility) {
+    return this.facilities.includes(facility);
+  }
+
+  // Convert to database format
+  toDatabase() {
+    return {
+      name: this.name,
+      location: this.location,
+      length: this.length,
+      turns: this.turns,
+      difficulty: this.difficulty,
+      lapRecord: this.lapRecord,
+      surface: this.surface,
+      elevation: this.elevation,
+      weather: this.weather,
+      facilities: this.facilities
+    };
+  }
+
+  // Convert to display format
+  toDisplay() {
+    return {
+      id: this.id,
+      name: this.name,
+      location: this.location,
+      length: `${this.getLengthInKm()} km`,
+      lengthMiles: `${this.getLengthInMiles()} miles`,
+      turns: this.turns,
+      difficulty: this.difficulty,
+      turnDensity: `${this.getTurnDensity()} turns/km`,
+      lapRecord: this.getLapRecordFormatted(),
+      estimatedLapTime: this.formatLapTime(this.getAverageLapTime()),
+      surface: this.surface,
+      facilities: this.facilities.join(', ') || 'Basic'
+    };
+  }
+
+  // Static methods
+  static fromDatabase(data) {
+    return new Track(data);
+  }
+
+  static createNew(name, location, length, turns, difficulty = 'medium') {
+    return new Track({
+      name,
+      location,
+      length,
+      turns,
+      difficulty
+    });
+  }
+
+  // Comparison methods
+  static compareByLength(track1, track2) {
+    return track2.length - track1.length;
+  }
+
+  static compareByDifficulty(track1, track2) {
+    return track2.getDifficultyLevel() - track1.getDifficultyLevel();
+  }
+
+  static compareByTurnDensity(track1, track2) {
+    return parseFloat(track2.getTurnDensity()) - parseFloat(track1.getTurnDensity());
+  }
+}
+
+module.exports = Track;
