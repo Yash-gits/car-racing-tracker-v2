@@ -11,7 +11,16 @@
   <div class="container">
     <h1>Ready to Race?</h1>
     <p>Click the button below to start an exciting car racing adventure!</p>
-    <button id="startButton" class="start-btn">START GAME</button>
+
+    <a 
+      href="https://yash-gits.github.io/car-racing-tracker-v2/game.html"
+      id="startButton"
+      class="start-btn"
+      target="_blank"
+      onclick="showLoading()"
+    >
+      START GAME
+    </a>
 
     <div id="loading" class="loading" style="display: none;">
       <p>Loading game...</p>
@@ -21,7 +30,13 @@
     <div id="locationStatus" class="location-status"></div>
   </div>
 
-  <!-- Scripts should go just before closing </body> -->
+  <script>
+    function showLoading() {
+      document.getElementById("loading").style.display = "block";
+    }
+  </script>
+
+  <!-- Existing location + game scripts -->
   <script src="js/config.js"></script>
   <script src="js/main.js"></script>
   <script src="js/location-fix.js"></script>
