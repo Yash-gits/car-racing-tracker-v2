@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Racing Game</title>
-    <link rel="stylesheet" href="css/style.css">
-    <meta name="description" content="Play an exciting car racing game!">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Racing Game</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <meta name="description" content="Play an exciting car racing game!" />
 </head>
 <body>
-    <div class="container">
-        <h1>Ready to Race?</h1>
-        <p>Click the button below to start an exciting car racing adventure!</p>
-        <button id="startButton" class="start-btn">START GAME</button>
-        <div id="loading" class="loading">
-            <p>Loading game...</p>
-            <div class="spinner"></div>
-        </div>
-        <div id="locationStatus" class="location-status">
-        </div>
+  <div class="container">
+    <h1>Ready to Race?</h1>
+    <p>Click the button below to start an exciting car racing adventure!</p>
+    <button id="startButton" class="start-btn">START GAME</button>
 
-    <script src="js/config.js"></script>
-    <script src="js/main.js"></script>
-    <script src="location-fix.js"></script>
+    <div id="loading" class="loading" style="display: none;">
+      <p>Loading game...</p>
+      <div class="spinner"></div>
+    </div>
+
+    <div id="locationStatus" class="location-status"></div>
+  </div>
+
+  <!-- Scripts should go just before closing </body> -->
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/location-fix.js"></script>
 </body>
-</html> 
+</html>
