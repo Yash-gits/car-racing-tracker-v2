@@ -1,0 +1,58 @@
+{
+  "name": "car-racing-tracker-v2",
+  "version": "2.0.0",
+  "description": "Advanced car racing tracker with MongoDB integration",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "echo 'Building CSS...'",
+    "build:js": "echo 'Building JavaScript...'",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "db:seed": "node scripts/seed-database.js",
+    "db:backup": "node scripts/backup-database.js",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
+  "dependencies": {
+    "mongodb": "^6.0.0",
+    "mongoose": "^8.0.0",
+    "express": "^4.18.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "winston": "^3.10.0",
+    "winston-mongodb": "^5.1.0",
+    "helmet": "^7.0.0",
+    "compression": "^1.7.4",
+    "rate-limiter-flexible": "^3.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0",
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0",
+    "gh-pages": "^6.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "racing",
+    "tracker",
+    "mongodb",
+    "nodejs",
+    "car-racing",
+    "lap-times",
+    "motorsport"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/car-racing-tracker-v2.git"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
