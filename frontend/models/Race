@@ -1,0 +1,103 @@
+// Race Model
+class Race {
+  constructor(data) {
+    this.id = data._id || data.id;
+    this.name = data.name;
+    this.track = data.track;
+    this.date = new Date(data.date);
+    this.weather = data.weather || 'sunny';
+    this.trackCondition = data.trackCondition || 'dry';
+    this.totalLaps = data.totalLaps;
+    this.status = data.status || 'scheduled';
+    this.participants = data.participants || [];
+    this.createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
+    this.updatedAt = data.updatedAt ? new Date(data.updatedAt) : new Date();
+  }
+
+  // Validation methods
+  isValid() {
+    return this.name && 
+           this.track && 
+           this.date && 
+           this.totalLaps > 0;
+  }
+
+  // Status methods
+  isCompleted() {
+    return this.status === 'completed';
+  }
+
+  isOngoing() {
+    return this.status === 'ongoing';
+  }
+
+  isScheduled() {
+    return this.status === 'scheduled';
+  }
+
+  // Participant methods
+  addParticipant(driverId, carNumber, startingPosition) {
+    this.participants.push({
+      driverId,
+      carNumber,
+      startingPosition
+    });
+  }
+
+  removeParticipant(driverId) {
+    this.participants = this.participants.filter(p => p.driverId !== driverId);
+  }
+
+  getParticipantCount() {
+    return this.participants.length;
+  }
+
+  // Convert to database format
+  toDatabase() {
+    return {
+      name: this.name,
+      track: this.track,
+      date: this.date,
+      weather: this.weather,
+      trackCondition: this.trackCondition,
+      totalLaps: this.totalLaps,
+      status: this.status,
+      participants: this.participants
+    };
+  }
+
+  // Convert to display format
+  toDisplay() {
+    return {
+      id: this.id,
+      name: this.name,
+      track: this.track,
+      date: this.date.toLocaleDateString(),
+      time: this.date.toLocaleTimeString(),
+      weather: this.weather,
+      condition: this.trackCondition,
+      laps: this.totalLaps,
+      status: this.status,
+      drivers: this.participants.length
+    };
+  }
+
+  // Static methods
+  static fromDatabase(data) {
+    return new Race(data);
+  }
+
+  static createNew(name, track, date, totalLaps, weather = 'sunny', trackCondition = 'dry') {
+    return new Race({
+      name,
+      track,
+      date,
+      totalLaps,
+      weather,
+      trackCondition,
+      status: 'scheduled'
+    });
+  }
+}
+
+module.exports = Race;
