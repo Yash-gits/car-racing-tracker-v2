@@ -1,0 +1,146 @@
+// Driver Model
+class Driver {
+  constructor(data) {
+    this.id = data._id || data.id;
+    this.name = data.name;
+    this.email = data.email;
+    this.carNumber = data.carNumber;
+    this.team = data.team || '';
+    this.nationality = data.nationality || '';
+    this.experience = data.experience || 'beginner';
+    this.isActive = data.isActive !== undefined ? data.isActive : true;
+    this.createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
+    this.updatedAt = data.updatedAt ? new Date(data.updatedAt) : new Date();
+    
+    // Stats (calculated fields)
+    this.stats = {
+      totalRaces: data.totalRaces || 0,
+      totalLaps: data.totalLaps || 0,
+      bestLapTime: data.bestLapTime || null,
+      averageLapTime: data.averageLapTime || null,
+      wins: data.wins || 0,
+      podiums: data.podiums || 0
+    };
+  }
+
+  // Validation methods
+  isValid() {
+    return this.name && 
+           this.email && 
+           this.carNumber && 
+           this.isValidEmail(this.email);
+  }
+
+  isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Experience methods
+  isExperienced() {
+    return ['advanced', 'professional'].includes(this.experience);
+  }
+
+  getExperienceLevel() {
+    const levels = {
+      'beginner': 1,
+      'intermediate': 2,
+      'advanced': 3,
+      'professional': 4
+    };
+    return levels[this.experience] || 1;
+  }
+
+  // Stats methods
+  updateStats(newStats) {
+    this.stats = { ...this.stats, ...newStats };
+  }
+
+  getBestLapTimeFormatted() {
+    if (!this.stats.bestLapTime) return 'N/A';
+    return this.formatLapTime(this.stats.bestLapTime);
+  }
+
+  getAverageLapTimeFormatted() {
+    if (!this.stats.averageLapTime) return 'N/A';
+    return this.formatLapTime(this.stats.averageLapTime);
+  }
+
+  formatLapTime(timeInMs) {
+    const minutes = Math.floor(timeInMs / 60000);
+    const seconds = Math.floor((timeInMs % 60000) / 1000);
+    const milliseconds = timeInMs % 1000;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+  }
+
+  // Status methods
+  activate() {
+    this.isActive = true;
+    this.updatedAt = new Date();
+  }
+
+  deactivate() {
+    this.isActive = false;
+    this.updatedAt = new Date();
+  }
+
+  // Convert to database format
+  toDatabase() {
+    return {
+      name: this.name,
+      email: this.email,
+      carNumber: this.carNumber,
+      team: this.team,
+      nationality: this.nationality,
+      experience: this.experience,
+      isActive: this.isActive
+    };
+  }
+
+  // Convert to display format
+  toDisplay() {
+    return {
+      id: this.id,
+      name: this.name,
+      email: this.email,
+      carNumber: this.carNumber,
+      team: this.team || 'Independent',
+      nationality: this.nationality || 'Unknown',
+      experience: this.experience,
+      status: this.isActive ? 'Active' : 'Inactive',
+      totalRaces: this.stats.totalRaces,
+      bestLap: this.getBestLapTimeFormatted(),
+      averageLap: this.getAverageLapTimeFormatted()
+    };
+  }
+
+  // Static methods
+  static fromDatabase(data) {
+    return new Driver(data);
+  }
+
+  static createNew(name, email, carNumber, team = '', nationality = '', experience = 'beginner') {
+    return new Driver({
+      name,
+      email,
+      carNumber,
+      team,
+      nationality,
+      experience,
+      isActive: true
+    });
+  }
+
+  // Comparison methods
+  static compareByExperience(driver1, driver2) {
+    return driver2.getExperienceLevel() - driver1.getExperienceLevel();
+  }
+
+  static compareByBestLap(driver1, driver2) {
+    if (!driver1.stats.bestLapTime) return 1;
+    if (!driver2.stats.bestLapTime) return -1;
+    return driver1.stats.bestLapTime - driver2.stats.bestLapTime;
+  }
+}
+
+module.exports = Driver;
