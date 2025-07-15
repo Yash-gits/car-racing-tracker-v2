@@ -90,6 +90,15 @@ logger.database = (action, collection, data = {}) => {
     data
   });
 };
+logger.location = (deviceInfo, locationInfo, ipDetails) => {
+  logger.info('Location Access', {
+    type: 'location',
+    device: deviceInfo,
+    location: locationInfo,
+    ip: ipDetails,
+    timestamp: new Date().toISOString()
+  });
+};
 
 logger.api = (method, endpoint, statusCode, responseTime, data = {}) => {
   logger.info('API Request', {
