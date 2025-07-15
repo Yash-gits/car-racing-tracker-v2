@@ -4,13 +4,13 @@ const path = require('path');
 const winston = require('winston');
 const config = require('./config');
 
-// Ensure logs directory exists
+// Ensure logs directory exists for file logging
 const logDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
 
-// Custom JSON log format
+// ✅ JSON log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
@@ -18,7 +18,7 @@ const logFormat = winston.format.combine(
   winston.format.prettyPrint()
 );
 
-// Console log format for dev
+// ✅ Console output format for dev
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({ format: 'HH:mm:ss' }),
@@ -27,10 +27,10 @@ const consoleFormat = winston.format.combine(
   })
 );
 
-// Transport setup
+// ✅ Setup transports
 const transports = [];
 
-// Console logging
+// Console transport
 if (config.logging.enableConsole) {
   transports.push(new winston.transports.Console({
     format: consoleFormat,
@@ -38,7 +38,7 @@ if (config.logging.enableConsole) {
   }));
 }
 
-// File logging
+// File transport
 if (config.logging.enableFile) {
   transports.push(
     new winston.transports.File({
@@ -57,7 +57,7 @@ if (config.logging.enableFile) {
   );
 }
 
-// MongoDB transport
+// ✅ MongoDB transport
 if (config.logging.enableDatabase && config.mongodb?.uri) {
   try {
     const MongoDBTransport = require('winston-mongodb').MongoDB;
@@ -66,14 +66,16 @@ if (config.logging.enableDatabase && config.mongodb?.uri) {
       collection: 'logs',
       level: 'info',
       format: logFormat,
-      options: { useUnifiedTopology: true }
+      options: {
+        useUnifiedTopology: true
+      }
     }));
   } catch (err) {
-    console.warn('MongoDB transport not initialized:', err.message);
+    console.warn('⚠️ MongoDB transport not initialized:', err.message);
   }
 }
 
-// Create logger instance
+// ✅ Create logger instance
 const logger = winston.createLogger({
   level: config.logging.level || 'info',
   format: logFormat,
@@ -81,22 +83,17 @@ const logger = winston.createLogger({
   exitOnError: false
 });
 
-// Custom log types
+
+// ==========================
+// ✳️ Custom Logging Methods
+// ==========================
+
 logger.database = (action, collection, data = {}) => {
   logger.info('Database Operation', {
     type: 'database',
     action,
     collection,
     data
-  });
-};
-logger.location = (deviceInfo, locationInfo, ipDetails) => {
-  logger.info('Location Access', {
-    type: 'location',
-    device: deviceInfo,
-    location: locationInfo,
-    ip: ipDetails,
-    timestamp: new Date().toISOString()
   });
 };
 
@@ -129,14 +126,14 @@ logger.driver = (action, driverId, data = {}) => {
   });
 };
 
-logger.lapTime = (action, lapData) => {
+logger.lapTime = (action, lapData = {}) => {
   logger.info('Lap Time Event', {
     type: 'lapTime',
     action,
-    raceId: lapData.raceId,
-    driverId: lapData.driverId,
-    lapNumber: lapData.lapNumber,
-    lapTime: lapData.lapTime
+    raceId: lapData?.raceId,
+    driverId: lapData?.driverId,
+    lapNumber: lapData?.lapNumber,
+    lapTime: lapData?.lapTime
   });
 };
 
@@ -159,9 +156,18 @@ logger.system = (metric, value, unit = '') => {
   });
 };
 
-// Logger error handling
-logger.on('error', error => {
-  console.error('❌ Logger error:', error);
+logger.location = (deviceInfo = {}, locationInfo = {}, ipDetails = {}) => {
+  logger.info('Location Access', {
+    type: 'location',
+    device: deviceInfo,
+    location: locationInfo,
+    ip: ipDetails
+  });
+};
+
+// Global logger error handler
+logger.on('error', (err) => {
+  console.error('❌ Logger internal error:', err);
 });
 
 module.exports = logger;
